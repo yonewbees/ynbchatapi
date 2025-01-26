@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  email             String              @unique
+  username          String              @unique
+  full_name         String?
+  phone             String?
+  password          String
+  is_active         Boolean             @default(true)
+  is_reported       Boolean             @default(false)
+  is_blocked        Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  verificationCode  String?
+  Contacts          Contact[]
+  Devices           Device[]
+  Messages          Message[]
+  AccessTokens      Access[]
+  BlockList         BlockList[]
+  DeletedMessages   DeletedMessage[]
+  DeletedChats      DeletedConversation[]
+  Reports           Report[]
+  Participants      Participant[]
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  firstName String
+  lastName  String
+  phone     String
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model Device {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  deviceId    String
+  deviceToken String
+  type        String
+  User        User     @relation(fields: [userId], references: [id])
+  Access Access[]
+}
+
+model Access {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String @unique
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+  deviceId  Int
+  User      User     @relation(fields: [userId], references: [id])
+  Device    Device   @relation(fields: [deviceId], references: [id])
+}
+
+model BlockList {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  participantId Int
+  createdAt     DateTime @default(now())
+  User          User     @relation(fields: [userId], references: [id])
+}
+
+model Chat {
+  id           Int           @id @default(autoincrement())
+  title        String?
+  creatorId    Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  Participants Participant[]
+  Messages     Message[]
+
+  DeletedConversation DeletedConversation[]
+}
+
+model Participant {
+  id      Int   @id @default(autoincrement())
+  chatId  Int
+  userId  Int
+  type    String
+  Chat    Chat  @relation(fields: [chatId], references: [id])
+  User    User  @relation(fields: [userId], references: [id])
+
+  Report Report[]
+}
+
+model Message {
+  id                  Int       @id @default(autoincrement())
+  chatId              Int
+  senderId            Int
+  messageType         String
+  message             String
+  attachmentThumbUrl  String?
+  attachmentUrl       String?
+  guid                String
+  createdAt           DateTime  @default(now())
+  deletedAt           DateTime?
+  Chat                Chat      @relation(fields: [chatId], references: [id])
+  Sender              User      @relation(fields: [senderId], references: [id])
+
+  DeletedMessage DeletedMessage[]
+}
+
+model DeletedMessage {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+  Message   Message  @relation(fields: [messageId], references: [id])
+}
+
+model DeletedConversation {
+  id         Int      @id @default(autoincrement())
+  chatId     Int
+  userId     Int
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id])
+  Chat       Chat     @relation(fields: [chatId], references: [id])
+}
+
+model Report {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  participantId Int
+  reportType   String
+  notes        String?
+  createdAt    DateTime @default(now())
+  User         User     @relation(fields: [userId], references: [id])
+  Participant  Participant @relation(fields: [participantId], references: [id])
+}
