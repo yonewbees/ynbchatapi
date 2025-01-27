@@ -12,7 +12,7 @@ model User {
   email             String              @unique
   username          String              @unique
   full_name         String?
-  phone             String?
+  phone             String?             @unique
   password          String
   is_active         Boolean             @default(true)
   is_reported       Boolean             @default(false)

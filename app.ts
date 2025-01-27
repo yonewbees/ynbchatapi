@@ -8,7 +8,6 @@ const path = require('path')
 const express = require('express');
 const chatrouter = require('./router/chatRouter')
 const routes = require('./router/routes')
-// const socket = require('socket.io')
 const bodyParser= require("body-parser");
 
 const dirname = path.dirname(__filename)
@@ -23,6 +22,9 @@ app.use(express.static(path.join(dirname, "public")))
 app.use(bodyParser.json());
 app.use('/api/', routes)
 
+app.get('/chat', (req:any, res:any) => {
+    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+  });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

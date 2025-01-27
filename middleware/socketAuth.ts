@@ -26,6 +26,7 @@ export async function authSocketUSER(socket: any, next: any) {
         next();
     } 
     catch (error) {
+        console.error("ERror",error)
         next(new Error("Authentication error"));
     }
 }

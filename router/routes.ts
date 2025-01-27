@@ -2,19 +2,14 @@ import express from'express';
 
 const models = require('../models/models')
 const routeMiddleware = require('../middleware/routeAuth')
-
-
 const {createMessage,blockUser,fetchMessages,fetchUserChats,deleteChat, deleteMessage, reportParticipant} = models
-
 const router = express.Router();
-
 router.use(routeMiddleware)
-
 // Get User Chats
 router.get('/:uid/chats', async (req:any, res:any) => {
   const userId = parseInt(req.params.uid);
   try {
-    const chats = await fetchUserChats(userId); // Using the model function
+    const chats = await fetchUserChats(userId); 
     res.json(chats);
   } catch (error:any) {
     res.status(500).json({ error: error.message });
@@ -39,7 +34,7 @@ router.get('/:chatId/messages', async (req:any, res:any) => {
   const userId = parseInt(req.query.userId as string);
 
   try {
-    const messages = await fetchMessages(chatId, userId); // Using the model function
+    const messages = await fetchMessages(chatId, userId); 
     res.json(messages);
   } catch (error:any) {
     res.status(500).json({ error: error.message });
@@ -52,7 +47,7 @@ router.delete('/chat/:chatId', async (req:any, res:any) => {
   const userId = parseInt(req.query.userId as string);
 
   try {
-    const deletedChat = await deleteChat(chatId, userId); // Using the model function
+    const deletedChat = await deleteChat(chatId, userId);
     res.json(deletedChat);
   } catch (error:any) {
     res.status(500).json({ error: error.message });
@@ -75,7 +70,7 @@ router.delete('/message/:messageId', async (req:any, res:any) => {
 router.post('/block', async (req:any, res:any) => {
   const { userId, participantId } = req.body;
   try {
-    const blockedUser = await blockUser(userId, participantId); // Using the model function
+    const blockedUser = await blockUser(userId, participantId); 
     res.json(blockedUser);
   } catch (error:any) {
     res.status(500).json({ error: error.message });
@@ -86,7 +81,7 @@ router.post('/block', async (req:any, res:any) => {
 router.post('/report', async (req:any, res:any) => {
   const { userId, participantId, reportType, notes } = req.body;
   try {
-    const report = await reportParticipant(userId, participantId, reportType, notes); // Using the model function
+    const report = await reportParticipant(userId, participantId, reportType, notes);
     res.json(report);
   } catch (error:any) {
     res.status(500).json({ error: error.message });

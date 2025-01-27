@@ -20,6 +20,28 @@ function startChannel(io: any) {
       return;
     }
 
+  //    // Event to create a channel
+  // socket.on("create_channel", (channelId:number,channelName:string,callback:any) => {
+  //   if (!channelName || channels[channelName]) {
+  //     // If channel already exists or no name provided, send an error
+  //     callback({
+  //       success: false,
+  //       message: "Channel already exists or invalid name",
+  //     });
+  //     return;
+  //   }
+
+  //   // Create a new channel
+  //   channels[channelName] = {
+  //     id:channelId
+  //     name: channelName,
+  //     participants: [],
+  //   };
+
+  //   console.log(`Channel created: ${channelName}`);
+  //   callback({ success: true, message: `Channel '${channelName}' created` });
+  // });
+
     // User joins a channel 
     socket.on("join_channel", async (channelId: number) => {
       
