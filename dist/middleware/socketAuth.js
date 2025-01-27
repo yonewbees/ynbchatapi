@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.authSocketUSER = authSocketUSER;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 function authSocketUSER(socket, next) {
@@ -35,8 +36,9 @@ function authSocketUSER(socket, next) {
             next();
         }
         catch (error) {
+            console.error("ERror", error);
             next(new Error("Authentication error"));
         }
     });
 }
-exports.default = authSocketUSER;
+module.exports = authSocketUSER;

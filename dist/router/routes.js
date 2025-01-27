@@ -8,19 +8,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
 const models = require('../models/models');
-const express = require("express");
 const routeMiddleware = require('../middleware/routeAuth');
 const { createMessage, blockUser, fetchMessages, fetchUserChats, deleteChat, deleteMessage, reportParticipant } = models;
-const router = express.Router();
-const { routeAuth } = routeMiddleware;
-router.use(routeAuth);
+const router = express_1.default.Router();
+router.use(routeMiddleware);
 // Get User Chats
 router.get('/:uid/chats', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = parseInt(req.params.uid);
     try {
-        const chats = yield fetchUserChats(userId); // Using the model function
+        const chats = yield fetchUserChats(userId);
         res.json(chats);
     }
     catch (error) {
@@ -44,7 +46,7 @@ router.get('/:chatId/messages', (req, res) => __awaiter(void 0, void 0, void 0, 
     const chatId = parseInt(req.params.chatId);
     const userId = parseInt(req.query.userId);
     try {
-        const messages = yield fetchMessages(chatId, userId); // Using the model function
+        const messages = yield fetchMessages(chatId, userId);
         res.json(messages);
     }
     catch (error) {
@@ -56,7 +58,7 @@ router.delete('/chat/:chatId', (req, res) => __awaiter(void 0, void 0, void 0, f
     const chatId = parseInt(req.params.chatId);
     const userId = parseInt(req.query.userId);
     try {
-        const deletedChat = yield deleteChat(chatId, userId); // Using the model function
+        const deletedChat = yield deleteChat(chatId, userId);
         res.json(deletedChat);
     }
     catch (error) {
@@ -79,7 +81,7 @@ router.delete('/message/:messageId', (req, res) => __awaiter(void 0, void 0, voi
 router.post('/block', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, participantId } = req.body;
     try {
-        const blockedUser = yield blockUser(userId, participantId); // Using the model function
+        const blockedUser = yield blockUser(userId, participantId);
         res.json(blockedUser);
     }
     catch (error) {
@@ -90,11 +92,11 @@ router.post('/block', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 router.post('/report', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, participantId, reportType, notes } = req.body;
     try {
-        const report = yield reportParticipant(userId, participantId, reportType, notes); // Using the model function
+        const report = yield reportParticipant(userId, participantId, reportType, notes);
         res.json(report);
     }
     catch (error) {
         res.status(500).json({ error: error.message });
     }
 }));
-exports.default = router;
+module.exports = router;

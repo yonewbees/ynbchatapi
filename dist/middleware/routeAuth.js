@@ -43,4 +43,4 @@ function routeAuth(req, res, next) {
     });
 }
 ;
-module.exports = { routeAuth };
+module.exports = routeAuth;
