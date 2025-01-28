@@ -21,10 +21,10 @@ const router = express_1.default.Router();
 router.use(routeMiddleware);
 // Get User Data
 router.get('/profile', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = parseInt(req.params.uid);
+    const userId = parseInt(req.user.id);
     try {
         const user = yield (0, models_1.findUserById)(userId);
-        res.json(userId);
+        res.json(user);
     }
     catch (error) {
         res.status(500).json({ error: error.message });

@@ -1,6 +1,7 @@
 // import { fileURLToPath } from "url";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import morgan from 'morgan'
 
 require('dotenv').config();
 
@@ -19,10 +20,16 @@ const server = createServer(app)
 
 app.use(express.static(path.join(dirname, "public")))
 
-// Middleware (if using)
+// Middleware for Parsing 
 app.use(bodyParser.json());
-app.use('/api', routes)
+
+//morgan for logging HTTP requests
+app.use(morgan('dev'));
+
 app.use('/api',authRoutes)
+app.use('/api', routes)
+
+// Content Routes
 
 app.get('/signin', (req:any, res:any) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -36,7 +43,7 @@ app.get('/chats', (req:any, res:any) => {
     res.sendFile(path.join(__dirname, 'public', 'chats.html'));
   });
 
-app.get('/chats/:id', (req:any, res:any) => {
+app.get('/chat/:id', (req:any, res:any) => {
     res.sendFile(path.join(__dirname, 'public', 'room.html'));
 });
 

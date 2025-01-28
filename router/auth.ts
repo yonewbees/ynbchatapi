@@ -3,41 +3,47 @@ import jwt from  'jsonwebtoken'
 import { Router } from "express";
 import { getUserByIdentifier, createDevice, createAccess, createUser } from "../models/models";
 import { PrismaClient } from '@prisma/client';
+import { UAParser } from 'ua-parser-js';
 
 const prisma = new PrismaClient();
-
 const router = Router();
+
+// Get Data from useragent
+export function getDeviceInfo(userAgentString: string | undefined, token: string) {
+  const parser = UAParser(userAgentString);
+  const { browser, cpu, device } = parser
+  return {
+    deviceId: `${browser.name || "unknown-browser"}-${cpu.is('arm') ? "arm" : "unknown-cpu"}-${device.vendor ? device.vendor : "unknown-vendor"} - ${device.model ? device.model : "unknown-device"}`,
+    deviceToken: token, // Pass the token directly
+    type: device.is('mobile') ? "mobile" : "desktop", // Fallback to desktop if type is undefined
+  };
+}
 
 router.post("/auth/login", async (req: any, res: any) => {
   try {
-    const { userid, password } = req.body;
- 
+    const { username, password } = req.body;
+    
     // Retrieve the user
-    const user: any = await getUserByIdentifier(userid);
+    const user: any = await getUserByIdentifier(username);
+
+    console.log('found user',user)
 
     if (!user) {
-      res.status(401).json({ error: "User does not exist" });
+      return res.status(401).json({ error: "User does not exist" });
     }
     const isAuth = await bcrypt.compare(password, user.password);
 
     if (!isAuth) {
-        res.status(401).json({ error: "Incorrect credentials" });
+      return  res.status(401).json({ error: "Incorrect credentials" });
     }
 
     // Generate a JWT token
     const JWT_SECRET = process.env.SECRET_KEY || "test"
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
-
-
-    const userAgent = req.headers["user-agent"];
-    const deviceInfo = {
-      deviceId: `${userAgent.browser.name}-${userAgent.os.name}-${
-        userAgent.device.type || "desktop"
-      }`,
-      deviceToken: "device-token-placeholder", // Replace with actual device token if available
-      type: userAgent.device.type || "desktop",
-    };
-
+    // Get login device data
+    const userAgent = req.headers["user-agent"]; 
+    const deviceInfo = getDeviceInfo(userAgent,token)
+    // Save device login data
     const dev = await createDevice(
       user.id,
       deviceInfo.deviceId,
@@ -50,29 +56,28 @@ router.post("/auth/login", async (req: any, res: any) => {
         dev.id,
         token,
     )
-    res.json(token);
+    return res.json({ access:token});
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.log(error)
+    return res.status(500).json({ error: error.message });
   }
 });
 
 // Create a user account
-router.get("/new-account", async (req: any, res: any) => {
+router.post("/new-account", async (req: any, res: any) => {
     try{
-    const {email,username,passwd,full_name,phone} = req.body
-   
-    const newUser = await createUser(email,username,passwd,full_name, phone)
-
-    res.json(newUser);
+    const {email,username,password,full_name,phone} = req.body
+    const newUser = await createUser(email,username,password,full_name, phone)
+    return res.json(newUser);
     }
     catch(err:any){
-        res.status(500).json({ error: err.message });
+      return  res.status(500).json({ error: err.message });
     }
 });
 
 
 // Logout from the api
-router.get("/logout", async (req: any, res: any) => {
+router.post("/logout", async (req: any, res: any) => {
     try{
     const {access:token} = req.body
     await prisma.access.update({
@@ -80,10 +85,10 @@ router.get("/logout", async (req: any, res: any) => {
         data: { deletedAt: new Date() },
     });
 
-    res.json({"message":"Logout was successful!"});
+    return res.json({"message":"Logout was successful!"});
     }
     catch(err:any){
-        res.status(500).json({ error: err.message });
+      return  res.status(500).json({ error: err.message });
     }
 });
 

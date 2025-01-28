@@ -41,7 +41,8 @@ export async  function createDevice(userId:number,deviceId:string,deviceToken:st
 // Create a user
 export async function createUser(email: string, username: string, passwd: string, full_name?: string, phone?: string) {
   // hash password before saving
-  const password:string = await bcrypt.hash(passwd,process.env.SALT_ROUNDS||10);
+  const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+  const password:string = await bcrypt.hash(passwd,saltRounds);
   const user = await prisma.user.create({
     data: {
       email,
@@ -61,13 +62,14 @@ export async function getUserByIdentifier(identifier: string) {
     where: {
       OR: [
         { email: identifier },
-        { username: identifier },
-      ],
-    },
+        { username: identifier }
+      ]
+    }
   });
 
   return user;
 }
+
 
 // Create a chat
 export async function createChat(creatorId: number, title: string, participantIds: number[]) {

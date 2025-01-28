@@ -72,13 +72,13 @@
         const response = await fetch('http://localhost:3000/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({username,password})
         });
 
         const data = await response.json();
         if (response.ok) {
           localStorage.setItem('access_token', data.access);
-          window.location.href = 'chats.html';
+          window.location.href = '/chats';
         } else {
           document.getElementById('error').textContent = data.detail || 'Login failed';
         }

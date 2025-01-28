@@ -68,7 +68,8 @@ function createDevice(userId, deviceId, deviceToken, type) {
 function createUser(email, username, passwd, full_name, phone) {
     return __awaiter(this, void 0, void 0, function* () {
         // hash password before saving
-        const password = yield bcrypt_1.default.hash(passwd, process.env.SALT_ROUNDS || 10);
+        const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+        const password = yield bcrypt_1.default.hash(passwd, saltRounds);
         const user = yield prisma.user.create({
             data: {
                 email,
@@ -88,9 +89,9 @@ function getUserByIdentifier(identifier) {
             where: {
                 OR: [
                     { email: identifier },
-                    { username: identifier },
-                ],
-            },
+                    { username: identifier }
+                ]
+            }
         });
         return user;
     });

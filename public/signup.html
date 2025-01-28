@@ -83,8 +83,9 @@
 
         const data = await response.json();
         if (response.ok) {
-          window.location.href = 'signin.html';
+          window.location.href = '/signin';
         } else {
+          console.log(response)
           document.getElementById('error').textContent = data.message || 'Signup failed';
         }
       } catch (error) {

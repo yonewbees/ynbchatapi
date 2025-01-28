@@ -16,6 +16,11 @@ const prisma = new client_1.PrismaClient();
 function routeAuth(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const authHeader = req.headers.authorization;
+        const excludedPaths = ['/auth/login', '/new-account'];
+        // Skip authentication for excluded routes
+        if (excludedPaths.includes(req.path)) {
+            return next();
+        }
         if (!authHeader) {
             return res.status(401).json({ error: "Unauthorized: Missing token" });
         }
