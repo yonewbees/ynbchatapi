@@ -8,6 +8,7 @@ const path = require('path')
 const express = require('express');
 const chatrouter = require('./router/chatRouter')
 const routes = require('./router/routes')
+const authRoutes = require('./router/auth')
 const bodyParser= require("body-parser");
 
 const dirname = path.dirname(__filename)
@@ -20,11 +21,24 @@ app.use(express.static(path.join(dirname, "public")))
 
 // Middleware (if using)
 app.use(bodyParser.json());
-app.use('/api/', routes)
+app.use('/api', routes)
+app.use('/api',authRoutes)
 
-app.get('/chat', (req:any, res:any) => {
-    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+app.get('/signin', (req:any, res:any) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/signup', (req:any, res:any) => {
+    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
   });
+
+app.get('/chats', (req:any, res:any) => {
+    res.sendFile(path.join(__dirname, 'public', 'chats.html'));
+  });
+
+app.get('/chats/:id', (req:any, res:any) => {
+    res.sendFile(path.join(__dirname, 'public', 'room.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

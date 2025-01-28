@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chats</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: white;
+      padding: 1rem;
+    }
+    .sidebar h2 {
+      margin-bottom: 1rem;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .sidebar ul li:hover {
+      background: #34495e;
+    }
+    .chat-list {
+      width: 300px;
+      background: #ecf0f1;
+      padding: 1rem;
+    }
+    .chat-list h2 {
+      margin-bottom: 1rem;
+    }
+    .chat-list ul {
+      list-style: none;
+      padding: 0;
+    }
+    .chat-list ul li {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .chat-list ul li:hover {
+      background: #bdc3c7;
+    }
+    .chat-window {
+      flex: 1;
+      background: white;
+      padding: 1rem;
+    }
+    .chat-window h2 {
+      margin-bottom: 1rem;
+    }
+    .chat-window .messages {
+      height: 80vh;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .chat-window .message-input {
+      display: flex;
+    }
+    .chat-window .message-input input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .chat-window .message-input button {
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    .chat-window .message-input button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Contacts</h2>
+    <ul id="contacts-list"></ul>
+  </div>
+  <div class="chat-list">
+    <h2>Chats</h2>
+    <ul id="chats-list"></ul>
+  </div>
+  <div class="chat-window">
+    <h2 id="chat-title">Select a Chat</h2>
+    <div class="messages" id="messages"></div>
+    <div class="message-input">
+      <input type="text" id="message-input" placeholder="Type a message...">
+      <button id="send-message">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const accessToken = localStorage.getItem('access_token');
+
+    // Fetch user profile
+    async function fetchProfile() {
+      const response = await fetch('http://localhost:3000/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${accessToken}`},
+        body: JSON.stringify({ access: accessToken })
+      });
+      return await response.json();
+    }
+
+    // Load chats and contacts
+    async function loadChatsAndContacts() {
+      const profile = await fetchProfile();
+      console.log('User Profile:', profile);
+
+      // Load contacts (example data)
+      const contacts = [
+        { id: 2, username: 'user2' },
+        { id: 3, username: 'user3' }
+      ];
+      const contactsList = document.getElementById('contacts-list');
+      contacts.forEach(contact => {
+        const li = document.createElement('li');
+        li.textContent = contact.username;
+        li.addEventListener('click', () => openChat(contact.id));
+        contactsList.appendChild(li);
+      });
+
+      // Load chats (example data)
+      const chats = [
+        { id: 1, name: 'Chat 1' },
+        { id: 2, name: 'Chat 2' }
+      ];
+      const chatsList = document.getElementById('chats-list');
+      chats.forEach(chat => {
+        const li = document.createElement('li');
+        li.textContent = chat.name;
+        li.addEventListener('click', () => openChat(chat.id));
+        chatsList.appendChild(li);
+      });
+    }
+
+    // Open chat
+    function openChat(chatId) {
+      window.location.href = `/chat/${chatId}`;
+    }
+
+    // Initialize
+    loadChatsAndContacts();
+  </script>
+</body>
+</html>

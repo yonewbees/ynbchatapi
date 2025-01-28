@@ -25,25 +25,23 @@ function startChannel(io) {
             socket.disconnect();
             return;
         }
-        //    // Event to create a channel
-        // socket.on("create_channel", (channelId:number,channelName:string,callback:any) => {
-        //   if (!channelName || channels[channelName]) {
-        //     // If channel already exists or no name provided, send an error
-        //     callback({
-        //       success: false,
-        //       message: "Channel already exists or invalid name",
-        //     });
-        //     return;
-        //   }
-        //   // Create a new channel
-        //   channels[channelName] = {
-        //     id:channelId
-        //     name: channelName,
-        //     participants: [],
-        //   };
-        //   console.log(`Channel created: ${channelName}`);
-        //   callback({ success: true, message: `Channel '${channelName}' created` });
-        // });
+        // Event to create a channel
+        socket.on("create_channel", (data, callback) => __awaiter(this, void 0, void 0, function* () {
+            const { channelId, channelName, participants } = data;
+            // Find this channel if it exists
+            const channel = yield prisma.chat.findUnique({
+                where: { id: channelId },
+                include: { Participants: true },
+            });
+            if (channel) {
+                socket.emit("error", { 'error': "Channel already exists" });
+                return;
+            }
+            // Create a new channel
+            const chat = yield models.createChat(user.id, '', [...new Set(participants)]);
+            console.log(`Channel created: ${channelName}`);
+            callback({ success: true, data: chat });
+        }));
         // User joins a channel 
         socket.on("join_channel", (channelId) => __awaiter(this, void 0, void 0, function* () {
             // Find this channel

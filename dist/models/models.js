@@ -8,7 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.findUserById = findUserById;
+exports.createAccess = createAccess;
+exports.createDevice = createDevice;
+exports.createUser = createUser;
+exports.getUserByIdentifier = getUserByIdentifier;
 exports.createChat = createChat;
 exports.deleteChat = deleteChat;
 exports.deleteMessage = deleteMessage;
@@ -19,6 +27,74 @@ exports.blockUser = blockUser;
 exports.reportParticipant = reportParticipant;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
+const bcrypt_1 = __importDefault(require("bcrypt"));
+// Find User By Id
+function findUserById(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = yield prisma.user.findUnique({
+            where: { id: id },
+        });
+        return user;
+    });
+}
+// Create an access record
+function createAccess(userId, deviceId, token) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const access = yield prisma.access.create({
+            data: {
+                userId,
+                deviceId,
+                token,
+            },
+        });
+        return access;
+    });
+}
+// Create Device
+function createDevice(userId, deviceId, deviceToken, type) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const device = yield prisma.device.create({
+            data: {
+                userId,
+                deviceId,
+                deviceToken,
+                type,
+            },
+        });
+        return device;
+    });
+}
+// Create a user
+function createUser(email, username, passwd, full_name, phone) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // hash password before saving
+        const password = yield bcrypt_1.default.hash(passwd, process.env.SALT_ROUNDS || 10);
+        const user = yield prisma.user.create({
+            data: {
+                email,
+                username,
+                password,
+                full_name,
+                phone,
+            },
+        });
+        return user;
+    });
+}
+// Find a user by email or username
+function getUserByIdentifier(identifier) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = yield prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: identifier },
+                    { username: identifier },
+                ],
+            },
+        });
+        return user;
+    });
+}
 // Create a chat
 function createChat(creatorId, title, participantIds) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -196,7 +272,7 @@ function reportParticipant(userId, participantId, reportType, notes) {
         return report;
     });
 }
-module.exports = { reportParticipant, deleteChat, deleteMessage,
-    createChat, createMessage,
+module.exports = { reportParticipant, deleteChat, deleteMessage, findUserById,
+    createChat, createMessage, createAccess, createDevice, createUser, getUserByIdentifier,
     fetchUserChats, fetchMessages, blockUser, fetchUserContacts
 };

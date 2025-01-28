@@ -13,11 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const models_1 = require("../models/models");
 const models = require('../models/models');
 const routeMiddleware = require('../middleware/routeAuth');
 const { createMessage, blockUser, fetchMessages, fetchUserChats, deleteChat, deleteMessage, reportParticipant } = models;
 const router = express_1.default.Router();
 router.use(routeMiddleware);
+// Get User Data
+router.get('/profile', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = parseInt(req.params.uid);
+    try {
+        const user = yield (0, models_1.findUserById)(userId);
+        res.json(userId);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}));
 // Get User Chats
 router.get('/:uid/chats', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = parseInt(req.params.uid);
