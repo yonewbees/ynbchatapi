@@ -1,10 +1,24 @@
 import express from'express';
+import { findUserById } from '../models/models';
 
 const models = require('../models/models')
 const routeMiddleware = require('../middleware/routeAuth')
 const {createMessage,blockUser,fetchMessages,fetchUserChats,deleteChat, deleteMessage, reportParticipant} = models
 const router = express.Router();
+
 router.use(routeMiddleware)
+
+// Get User Data
+router.get('/profile', async (req:any, res:any) => {
+  const userId = parseInt(req.user.id);
+  try {
+    const user = await findUserById(userId); 
+    res.json(user);
+  } catch (error:any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get User Chats
 router.get('/:uid/chats', async (req:any, res:any) => {
   const userId = parseInt(req.params.uid);

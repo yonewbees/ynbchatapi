@@ -1,5 +1,75 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
+import bcrypt from 'bcrypt';
+
+// Find User By Id
+export  async function findUserById(id:number){
+const user = await prisma.user.findUnique({
+  where: { id: id },
+});
+return user
+}
+
+// Create an access record
+export async function createAccess(userId: number, deviceId: number, token: string) {
+  const access = await prisma.access.create({
+    data: {
+      userId,
+      deviceId,
+      token,
+    },
+  });
+
+  return access;
+}
+
+// Create Device
+export async  function createDevice(userId:number,deviceId:string,deviceToken:string,type:string){
+  const device = await prisma.device.create({
+    data: {
+      userId,
+      deviceId,
+      deviceToken,
+      type,
+    },
+  });
+
+  return device;
+}
+
+
+// Create a user
+export async function createUser(email: string, username: string, passwd: string, full_name?: string, phone?: string) {
+  // hash password before saving
+  const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+  const password:string = await bcrypt.hash(passwd,saltRounds);
+  const user = await prisma.user.create({
+    data: {
+      email,
+      username,
+      password, 
+      full_name,
+      phone,
+    },
+  });
+
+  return user;
+}
+
+// Find a user by email or username
+export async function getUserByIdentifier(identifier: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    }
+  });
+
+  return user;
+}
+
 
 // Create a chat
 export async function createChat(creatorId: number, title: string, participantIds: number[]) {
@@ -200,7 +270,7 @@ export async function reportParticipant(userId: number, participantId: number, r
   return report;
 }
 
-module.exports = {reportParticipant,deleteChat,deleteMessage,
-   createChat,createMessage, 
+module.exports = {reportParticipant,deleteChat,deleteMessage,findUserById,
+   createChat,createMessage, createAccess,createDevice ,createUser,getUserByIdentifier,
   fetchUserChats,fetchMessages,blockUser, fetchUserContacts 
 }
