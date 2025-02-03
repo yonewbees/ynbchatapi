@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Socket.IO chat</title>
+  <title>Chat</title>
   <style>
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -23,6 +23,19 @@
   </form>
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    
+    // Fetch messages
+    async function fetchChatMessages({userid}) {
+      const params = window.href.params
+      console.log(params)
+      const response = await fetch(`/${userid}/chats`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${accessToken}`},
+      });
+      return await response.json();
+    }
+
+    
     let counter = 0;
 
     const socket = io({
@@ -37,6 +50,8 @@
     const input = document.getElementById('input');
     const messages = document.getElementById('messages');
 
+
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (input.value) {
@@ -45,6 +60,7 @@
         input.value = '';
       }
     });
+
 
     socket.on('chat message', (msg, serverOffset) => {
       const item = document.createElement('li');

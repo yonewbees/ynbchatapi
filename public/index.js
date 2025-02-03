@@ -8,7 +8,7 @@ const socket = io('http://localhost:3000', {
 // Create a new channel
 socket.emit('create_channel', {
     channelName: 'Development Team',
-    participants: [2, 3, 4] // Optional user IDs to add as members
+    participants: [1,2] 
 }, (response) => {
     if (response.success) {
         console.log('Created channel ID:', response.channel.id);

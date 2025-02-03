@@ -93,25 +93,31 @@
     <h2>Contacts</h2>
     <ul id="contacts-list"></ul>
   </div>
+
   <div class="chat-list">
     <h2>Chats</h2>
     <ul id="chats-list"></ul>
   </div>
-  <div class="chat-window">
-    <h2 id="chat-title">Select a Chat</h2>
-    <div class="messages" id="messages"></div>
-    <div class="message-input">
-      <input type="text" id="message-input" placeholder="Type a message...">
-      <button id="send-message">Send</button>
-    </div>
-  </div>
+
+  <Button class="btn new-chat">
+        <p>New Chat</p>
+  </Button>
 
   <script>
     const accessToken = localStorage.getItem('access_token');
 
     // Fetch user profile
     async function fetchProfile() {
-      const response = await fetch('http://localhost:3000/api/profile', {
+      const response = await fetch('/api/profile', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${accessToken}`},
+      });
+      return await response.json();
+    }
+
+       // Fetch user chats
+      async function fetchUserChats({userid}) {
+      const response = await fetch(`/${userid}/chats`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${accessToken}`},
       });
@@ -123,6 +129,7 @@
      
       const profile = await fetchProfile();
       console.log('User Profile:', profile);
+      localStorage.setItem('userData', profile.id);
 
       // Load contacts (example data)
       const contacts = [
@@ -138,10 +145,9 @@
       });
 
       // Load chats (example data)
-      const chats = [
-        { id: 1, name: 'Chat 1' },
-        { id: 2, name: 'Chat 2' }
-      ];
+      const resp = await fetchUserChats({userid}) 
+      const chats = await resp.json() || []
+      console.log("Found chats",chats)
       const chatsList = document.getElementById('chats-list');
       chats.forEach(chat => {
         const li = document.createElement('li');
