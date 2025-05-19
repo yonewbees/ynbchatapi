@@ -56,7 +56,7 @@ router.post('/new-message', (req, res) => __awaiter(void 0, void 0, void 0, func
 // Get Messages in a Chat
 router.get('/:chatId/messages', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const chatId = parseInt(req.params.chatId);
-    const userId = parseInt(req.query.userId);
+    const userId = parseInt(req.query.id);
     try {
         const messages = yield fetchMessages(chatId, userId);
         res.json(messages);
